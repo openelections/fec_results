@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = FecResults::VERSION
   spec.authors       = ["Derek Willis"]
   spec.email         = ["dwillis@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Parses FEC federal election results into Ruby objects}
+  spec.summary       = %q{House, Senate, Presidential results}
   spec.homepage      = ""
   spec.license       = "Apache"
 
