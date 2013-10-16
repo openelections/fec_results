@@ -1,23 +1,26 @@
-require 'utils'
+require 'rubygems'
+require 'remote_table'
 
 module FecResults
   class Congress
 
-    # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
-    # retrieves election results that fit the criteria
-    def new(year, options={})
-      send("process_#{year}")
+    def initialize(params={})
+      params.each_pair do |k,v|
+       instance_variable_set("@#{k}", v)
+      end
     end
 
-    def process_2012(options)
+    # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
+    # retrieves election results that fit the criteria
+    def process(year, options={})
+      send("process_#{year.to_s}(#{options})")
+    end
+
+    def process_2012(options={})
       results = []
       url = FecResults::CONGRESS_URLS['2012']
       t = RemoteTable.new(url, :sheet => "2012 US House & Senate Resuts")
       rows = t.entries
-      # optional filtering
-      rows = rows.select{|r| r['D'] == options[:chamber]} if options[:chamber]
-      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
-
       rows.each do |candidate|
         c = {:year => 2012}
         next if candidate['CANDIDATE NAME (Last)'].blank?
@@ -44,8 +47,11 @@ module FecResults
         c = update_combined_totals(c, candidate) if ['CT', 'NY', 'SC'].include?(c[:state])
 
         c[:general_winner] = candidate['GE WINNER INDICATOR'] == "W" ? true : false unless c[:general_pct].nil?
+
         results << c
       end
+      results = results.select{|r| r[:chamber] == options[:chamber]} if options[:chamber]
+      results = results.select{|r| r[:state] == options[:state]} if options[:state]
       Result.create_congress(results)
     end
 
