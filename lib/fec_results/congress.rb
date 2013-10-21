@@ -128,6 +128,43 @@ module FecResults
       Result.create_congress(results)
     end
 
+    def process_2006(options={})
+      results = []
+      url = FecResults::CONGRESS_URLS['2006']
+      t = RemoteTable.new(url, :sheet => "2006 US House & Senate Results")
+      rows = t.entries
+      rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        c = {:year => 2008}
+        next if candidate['LAST NAME'].blank?
+        next if candidate['DISTRICT'].blank?
+        # find the office_type
+        if candidate['FEC ID'].first != 'n'
+          c[:chamber] = candidate['FEC ID'].first
+        elsif candidate['DISTRICT'].first == 'S'
+          c[:chamber] = "S"
+        else
+          c[:chamber] = 'H'
+        end
+        c[:state] = candidate['STATE ABBREVIATION']
+        c[:district] = candidate['DISTRICT']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = candidate['INCUMBENT INDICATOR'] == '(I)' ? true : false
+        c[:fec_id] = candidate['FEC ID#']
+        c[:candidate_first] = candidate['FIRST NAME']
+        c[:candidate_last] = candidate['LAST NAME']
+        c[:candidate_name] = candidate['LAST NAME, FIRST']
+
+        c = update_vote_tallies(c, candidate, 'PRIMARY', 'PRIMARY %', 'RUNOFF', 'RUNOFF %', 'GENERAL', 'GENERAL %')
+        c = update_general_runoff(c, candidate, 'GE RUNOFF', 'GE RUNOFF %') if c[:state] == 'LA'
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (NY, SC)', 'COMBINED % (NY, SC)') if ['SC', 'NY'].include?(c[:state])
+
+        results << c
+      end
+      Result.create_congress(results)
+    end
+
     def update_vote_tallies(c, candidate, primary_votes, primary_pct, runoff_votes, runoff_pct, general_votes, general_pct)
       if candidate[primary_votes] == 'Unopposed'
         c[:primary_unopposed] = true
