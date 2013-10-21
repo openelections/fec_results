@@ -44,9 +44,9 @@ module FecResults
         c[:candidate_last] = candidate['CANDIDATE NAME (Last)']
         c[:candidate_name] = candidate['CANDIDATE NAME']
 
-        c = update_vote_tallies(c, candidate)
-        c = update_general_runoff(c, candidate) if c[:state] == 'LA'
-        c = update_combined_totals(c, candidate) if ['CT', 'NY', 'SC'].include?(c[:state])
+        c = update_vote_tallies(c, candidate, 'PRIMARY VOTES', 'PRIMARY %', 'RUNOFF VOTES', 'RUNOFF %', 'GENERAL VOTES ', 'GENERAL %')
+        c = update_general_runoff(c, candidate, 'GE RUNOFF ELECTION VOTES (LA)', 'GE RUNOFF ELECTION % (LA)') if c[:state] == 'LA'
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (CT, NY, SC)', 'COMBINED % (CT, NY, SC)') if ['CT', 'NY', 'SC'].include?(c[:state])
 
         c[:general_winner] = candidate['GE WINNER INDICATOR'] == "W" ? true : false unless c[:general_pct].nil?
 
@@ -55,53 +55,126 @@ module FecResults
       Result.create_congress(results)
     end
 
-    def update_vote_tallies(c, candidate)
-      if candidate['PRIMARY VOTES'] == 'Unopposed'
+    def process_2010(options={})
+      results = []
+      url = FecResults::CONGRESS_URLS['2010']
+      t = RemoteTable.new(url, :sheet => "2010 US House & Senate Results")
+      rows = t.entries
+      rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        c = {:year => 2010}
+        next if candidate['CANDIDATE NAME (Last)'].blank?
+        next if candidate['DISTRICT'].blank?
+        # find the office_type
+        if candidate['FEC ID#'].first != 'n'
+          c[:chamber] = candidate['FEC ID#'].first
+        elsif candidate['DISTRICT'].first == 'S'
+          c[:chamber] = "S"
+        else
+          c[:chamber] = 'H'
+        end
+        c[:state] = candidate['STATE ABBREVIATION']
+        c[:district] = candidate['DISTRICT']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = candidate['INCUMBENT INDICATOR (I)'] == '(I)' ? true : false
+        c[:fec_id] = candidate['FEC ID#']
+        c[:candidate_first] = candidate['CANDIDATE NAME (First)']
+        c[:candidate_last] = candidate['CANDIDATE NAME (Last)']
+        c[:candidate_name] = candidate['CANDIDATE NAME (Last, First)']
+
+        c = update_vote_tallies(c, candidate, 'PRIMARY', 'PRIMARY %', 'RUNOFF', 'RUNOFF %', 'GENERAL ', 'GENERAL %')
+        c = update_combined_totals(c, candidate) if ['CT', 'NY', 'SC'].include?(c[:state])
+
+        results << c
+      end
+      Result.create_congress(results)
+    end
+
+    def process_2008(options={})
+      results = []
+      url = FecResults::CONGRESS_URLS['2008']
+      t = RemoteTable.new(url, :sheet => "2008 House and Senate Results")
+      rows = t.entries
+      rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        c = {:year => 2008}
+        next if candidate['Candidate Name (Last)'].blank?
+        next if candidate['DISTRICT'].blank?
+        # find the office_type
+        if candidate['FEC ID#'].first != 'n'
+          c[:chamber] = candidate['FEC ID#'].first
+        elsif candidate['DISTRICT'].first == 'S'
+          c[:chamber] = "S"
+        else
+          c[:chamber] = 'H'
+        end
+        c[:state] = candidate['STATE ABBREVIATION']
+        c[:district] = candidate['DISTRICT']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = candidate['INCUMBENT INDICATOR (I)'] == '(I)' ? true : false
+        c[:fec_id] = candidate['FEC ID#']
+        c[:candidate_first] = candidate['CANDIDATE NAME (First)']
+        c[:candidate_last] = candidate['CANDIDATE NAME (Last)']
+        c[:candidate_name] = candidate['CANDIDATE NAME']
+
+        c = update_vote_tallies(c, candidate, 'PRIMARY', 'PRIMARY %', 'RUNOFF', 'RUNOFF %', 'GENERAL ', 'GENERAL %')
+        c = update_general_runoff(c, candidate, 'GE RUNOFF', 'GE RUNOFF %') if c[:state] == 'LA'
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (CT, NY)', 'COMBINED % (CT, NY)') if ['CT', 'NY'].include?(c[:state])
+
+        results << c
+      end
+      Result.create_congress(results)
+    end
+
+    def update_vote_tallies(c, candidate, primary_votes, primary_pct, runoff_votes, runoff_pct, general_votes, general_pct)
+      if candidate[primary_votes] == 'Unopposed'
         c[:primary_unopposed] = true
         c[:primary_votes] = nil
         c[:primary_pct] = 100.0
       else
         c[:primary_unopposed] = false
-        c[:primary_votes] = candidate['PRIMARY VOTES'].to_i
-        c[:primary_pct] = candidate['PRIMARY %'].to_f*100.0
+        c[:primary_votes] = candidate[primary_votes].to_i
+        c[:primary_pct] = candidate[primary_pct].to_f*100.0
       end
 
-      if candidate['RUNOFF VOTES'].blank?
+      if candidate[runoff_votes].blank?
         c[:runoff_votes] = nil
         c[:runoff_pct] = nil
       else
-        c[:runoff_votes] = candidate['RUNOFF VOTES'].to_i
-        c[:runoff_pct] = candidate['RUNOFF %'].to_f*100.0
+        c[:runoff_votes] = candidate[runoff_votes].to_i
+        c[:runoff_pct] = candidate[runoff_pct].to_f*100.0
       end
 
-      if candidate['GENERAL VOTES '] == 'Unopposed'
+      if candidate[general_votes] == 'Unopposed'
         c[:general_unopposed] = true
         c[:general_votes] = nil
         c[:general_pct] = 100.0
-      elsif candidate['GENERAL VOTES '].blank?
+      elsif candidate[general_votes].blank?
         c[:general_unopposed] = false
         c[:general_votes] = nil
         c[:general_pct] = nil
       else
         c[:general_unopposed] = false
-        c[:general_votes] = candidate['GENERAL VOTES '].to_i
-        c[:general_pct] = candidate['GENERAL %'].to_f*100.0
+        c[:general_votes] = candidate[general_votes].to_i
+        c[:general_pct] = candidate[general_pct].to_f*100.0
       end
       c
     end
 
-    def update_general_runoff(c, candidate)
-      unless candidate['GE RUNOFF ELECTION VOTES (LA)'].blank?
-        c[:general_runoff_votes] = candidate['GE RUNOFF ELECTION VOTES (LA)'].to_i
-        c[:general_runoff_pct] = candidate['GE RUNOFF ELECTION % (LA)'].to_f*100.0
+    def update_general_runoff(c, candidate, general_runoff_votes, general_runoff_pct)
+      unless candidate[general_runoff_votes].blank?
+        c[:general_runoff_votes] = candidate[general_runoff_votes].to_i
+        c[:general_runoff_pct] = candidate[general_runoff_pct].to_f*100.0
       end
       c
     end
 
-    def update_combined_totals(c, candidate)
-      unless candidate['COMBINED GE PARTY TOTALS (CT, NY, SC)'].blank?
-        c[:general_combined_party_votes] = candidate['COMBINED GE PARTY TOTALS (CT, NY, SC)'].to_i
-        c[:general_combined_party_pct] = candidate['COMBINED % (CT, NY, SC)'].to_f*100.0
+    def update_combined_totals(c, candidate, general_combined_party_votes, general_combined_party_pct)
+      unless candidate[general_combined_party_votes].blank?
+        c[:general_combined_party_votes] = candidate[general_combined_party_votes].to_i
+        c[:general_combined_party_pct] = candidate[general_combined_party_pct].to_f*100.0
       end
       c
     end
