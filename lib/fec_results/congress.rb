@@ -12,8 +12,8 @@ module FecResults
 
     # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
     # retrieves election results that fit the criteria
-    def process(year, options={})
-      send("process_#{year.to_s}(#{options})")
+    def load(year, *args)
+      send("process_#{year}", *args)
     end
 
     def process_2012(options={})
@@ -21,6 +21,8 @@ module FecResults
       url = FecResults::CONGRESS_URLS['2012']
       t = RemoteTable.new(url, :sheet => "2012 US House & Senate Resuts")
       rows = t.entries
+      rows = rows.select{|r| r['D'] == options[:chamber]} if options[:chamber]
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         c = {:year => 2012}
         next if candidate['CANDIDATE NAME (Last)'].blank?
@@ -50,8 +52,6 @@ module FecResults
 
         results << c
       end
-      results = results.select{|r| r[:chamber] == options[:chamber]} if options[:chamber]
-      results = results.select{|r| r[:state] == options[:state]} if options[:state]
       Result.create_congress(results)
     end
 
