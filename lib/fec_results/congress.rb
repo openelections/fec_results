@@ -230,12 +230,50 @@ module FecResults
         c[:candidate_name] = candidate['LAST NAME, FIRST']
 
         c = update_vote_tallies(c, candidate, 'PRIMARY RESULTS', 'PRIMARY %', 'RUNOFF RESULTS', 'RUNOFF %', 'GENERAL RESULTS', 'GENERAL %')
-        c = update_general_runoff(c, candidate, 'GENERAL RUNOFF RESULTS', 'GENERAL RUNOFF %') if c[:state] == 'LA'
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (NY, SC)', 'COMBINED % (NY, SC)') if ['SC', 'NY'].include?(c[:state])
 
         results << c
       end
       Result.create_congress(results)
     end
+
+    def process_2000(options={})
+      results = []
+      urls = FecResults::CONGRESS_URLS['2000']
+      urls.each do |url, sheet|
+        t = RemoteTable.new(url, :sheet => sheet)
+        rows = t.entries
+        rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
+        rows.each do |candidate|
+          c = {:year => 2000}
+          next if candidate['NAME'][0..4] == 'Total'
+          next if candidate['DISTRICT'].blank?
+          if candidate['DISTRICT'].first == 'S'
+            c[:chamber] = "S"
+          else
+            c[:chamber] = 'H'
+          end
+          c[:state] = candidate['STATE']
+          c[:district] = candidate['DISTRICT']
+          c[:party] = candidate['PARTY']
+          c[:incumbent] = candidate['INCUMBENT INDICATOR'] == '(I)' ? true : false
+          c[:candidate_first], c[:candidate_last] = candidate['NAME'].split(', ')
+          c[:candidate_name] = candidate['NAME']
+
+          c = update_vote_tallies(c, candidate, 'PRIMARY RESULTS', 'PRIMARY %', 'RUNOFF RESULTS', 'RUNOFF %', 'GENERAL RESULTS', 'GENERAL %')
+          c = update_general_runoff(c, candidate, 'GENERAL RUNOFF RESULTS', 'GENERAL RUNOFF %') if c[:state] == 'LA'
+
+          results << c
+        end
+      end
+      if options[:chamber] == 'H'
+        results = results.select{|r| r[:chamber] != 'S'}
+      elsif options[:chamber] == 'S'
+        results = results.select{|r| r[:chamber] == 'S'}
+      end
+      Result.create_congress(results)
+    end
+
 
     def update_vote_tallies(c, candidate, primary_votes, primary_pct, runoff_votes, runoff_pct, general_votes, general_pct)
       if candidate[primary_votes] == 'Unopposed'

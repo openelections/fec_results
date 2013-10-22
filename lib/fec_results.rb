@@ -22,7 +22,7 @@ module FecResults
     '2006' => 'http://www.fec.gov/pubrec/fe2006/results06.xls',
     '2004' => 'http://www.fec.gov/pubrec/fe2004/2004congresults.xls',
     '2002' => 'http://www.fec.gov/pubrec/fe2002/2002fedresults.xls',
-    '2000' => ['http://www.fec.gov/pubrec/fe2000/senate.xls', 'http://www.fec.gov/pubrec/fe2000/house.xls']
+    '2000' => [{'http://www.fec.gov/pubrec/fe2000/senate.xls' => 'Senate (with Totals & Percent) '}, {'http://www.fec.gov/pubrec/fe2000/house.xls' => 'House (with Totals & Percents)'}]
   }
 
   PRESIDENT_URLS = {
