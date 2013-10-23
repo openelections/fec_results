@@ -240,8 +240,8 @@ module FecResults
     def process_2000(options={})
       results = []
       urls = FecResults::CONGRESS_URLS['2000']
-      urls.each do |url, sheet|
-        t = RemoteTable.new(url, :sheet => sheet)
+      urls.each do |url|
+        t = RemoteTable.new(url.keys.first, :sheet => url.values.first)
         rows = t.entries
         rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
         rows.each do |candidate|
