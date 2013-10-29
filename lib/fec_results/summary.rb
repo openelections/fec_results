@@ -7,9 +7,16 @@ module FecResults
     
     attr_reader :year, :url
     
-    def new(year)
+    def initialize(params={})
+      params.each_pair do |k,v|
+       instance_variable_set("@#{k}", v)
+      end
+    end
+
+    def load(year)
       @year = year.to_i
       @url = FecResults::SUMMARY_URLS[year.to_s]
+      return self
     end
         
     def general_election_votes(*args)
@@ -37,6 +44,7 @@ module FecResults
       results = []
       t = RemoteTable.new(url, :sheet => 'Table 3.GEVotes for Pres, H & S', :skip => 2)
       t.entries.each do |row|
+        break if row['State'] == 'Total:'
         pres_votes = row['Presidential Vote'].to_i == 0 ? nil : row['Presidential Vote'].to_i
         sen_votes = row['U.S. Senate Vote'].to_i == 0 ? nil : row['U.S. Senate Vote'].to_i
         results << OpenStruct.new(:state => row['State'], :presidential_votes => pres_votes, :senate_votes => sen_votes, :house_votes => row['U.S. House Vote'].to_i)
@@ -48,6 +56,7 @@ module FecResults
       results = []
       t = RemoteTable.new(url, :sheet => 'Table 4. GE Votes Cast by Party', :skip => 3)
       t.entries.each do |row|
+        break if row['State'] == 'Total:'
         dem_votes = row['Democratic Candidates'].to_i == 0 ? nil : row['Democratic Candidates'].to_i
         gop_votes = row['Republican Candidates'].to_i == 0 ? nil : row['Republican Candidates'].to_i
         other_votes = row['Other Candidates'].to_i == 0 ? nil : row['Other Candidates'].to_i
@@ -92,7 +101,7 @@ module FecResults
     # runoff election votes are included in the primary totals
     def process_chamber_votes_by_party_2012(options={})
       results = []
-      sheet = chamber == 'senate' ? 'Table 6. Senate by Party' : 'Table 7. House by Party'
+      sheet = options[:chamber] == 'senate' ? 'Table 6. Senate by Party' : 'Table 7. House by Party'
       t = RemoteTable.new(url, :sheet => sheet, :skip => 4, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total:'
