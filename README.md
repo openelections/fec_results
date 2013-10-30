@@ -26,7 +26,7 @@ FecResults can be used to retrieve both summary and contest-specific election re
 require 'fec_results'
 s = FecResults::Summary.new(:year => 2012)
 general_votes = s.general_election_votes
-=> [<OpenStruct state="AL", presidential_votes=2074338, senate_votes=nil, house_votes=1933630>, #<OpenStruct state="AK", presidential_votes=300495, senate_votes=nil, house_votes=289804>,...]
+=> [<OpenStruct state="AL", presidential_votes=2074338, senate_votes=nil, house_votes=1933630>, <OpenStruct state="AK", presidential_votes=300495, senate_votes=nil, house_votes=289804>,...]
 general_votes.
 alabama = general_votes.first
 => <OpenStruct state="AL", presidential_votes=2074338, senate_votes=nil, house_votes=1933630>
