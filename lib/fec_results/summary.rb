@@ -11,14 +11,9 @@ module FecResults
       params.each_pair do |k,v|
        instance_variable_set("@#{k}", v)
       end
+      @url = FecResults::SUMMARY_URLS[year.to_s]
     end
 
-    def load(year)
-      @year = year.to_i
-      @url = FecResults::SUMMARY_URLS[year.to_s]
-      return self
-    end
-        
     def general_election_votes(*args)
       send("process_general_election_votes_#{year}", *args)
     end

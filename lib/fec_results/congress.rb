@@ -4,16 +4,18 @@ require 'remote_table'
 module FecResults
   class Congress
 
+    attr_reader :year, :chamber, :state
+
+    # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
+    # retrieves election results that fit the criteria
     def initialize(params={})
       params.each_pair do |k,v|
        instance_variable_set("@#{k}", v)
       end
     end
 
-    # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
-    # retrieves election results that fit the criteria
-    def load(year, *args)
-      send("process_#{year}", *args)
+    def results
+      send("process_#{year}", {:chamber => chamber, :state => state})
     end
 
     def process_2012(options={})

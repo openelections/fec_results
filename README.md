@@ -20,7 +20,29 @@ Or install it yourself as:
 
 ## Usage
 
-FecResults can be used to retrieve both summary and contest-specific election results. 
+FecResults can be used to retrieve both summary and contest-specific election results. For summary totals:
+
+	```ruby
+	require 'fec_results'
+	s = FecResults::Summary.new(:year => 2012)
+	general_votes = s.general_election_votes
+	=> [#<OpenStruct state="AL", presidential_votes=2074338, senate_votes=nil, house_votes=1933630>, #<OpenStruct state="AK", presidential_votes=300495, senate_votes=nil, house_votes=289804>,...]
+	general_votes.
+	alabama = general_votes.first
+	=> #<OpenStruct state="AL", presidential_votes=2074338, senate_votes=nil, house_votes=1933630>
+	alabama.house_votes
+	=> 1933630
+	```
+For specific congressional results, the file can take awhile to load, so try not to call `results` more than once:
+
+	```ruby
+	c = FecResults::Congress.new(:year => 2012)
+	results = c.results
+	results.first
+	=> #<FecResults::Result:0x007fb46e297870 @year=2012, @chamber="H", @state="AL", @district="01", @fec_id="H2AL01077", @incumbent=true, @candidate_last="Bonner", @candidate_first="Jo", @candidate_name="Bonner, Jo", @party="R", @primary_votes=48702, @primary_pct=55.54959907839358, @primary_unopposed=false, @runoff_votes=nil, @runoff_pct=nil, @general_votes=196374, @general_pct=97.85624588889553, @general_unopposed=false, @general_runoff_votes=nil, @general_runoff_pct=nil, @general_combined_party_votes=nil, @general_combined_party_pct=nil, @general_winner=true, @notes=nil>
+	```
+
+	
 
 ## Contributing
 
