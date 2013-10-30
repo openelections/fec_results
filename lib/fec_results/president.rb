@@ -1,6 +1,8 @@
 module FecResults
   class President
 
+    attr_reader :year, :url
+
     def initialize(params={})
       params.each_pair do |k,v|
        instance_variable_set("@#{k}", v)

@@ -1,7 +1,3 @@
-require 'rubygems'
-require 'remote_table'
-require 'ostruct'
-
 module FecResults
   class Summary
     
@@ -33,6 +29,10 @@ module FecResults
     
     def chamber_votes_by_party(*args)
       send("process_chamber_votes_by_party_#{year}", *args)
+    end
+
+    def party_labels
+      send("party_labels_#{year}")
     end
     
     def process_general_election_votes_2012(options={})
@@ -112,6 +112,14 @@ module FecResults
       results
     end
     
+    def party_labels_2012
+      results = []
+      t = RemoteTable.new(url, :sheet => '2012 Party Labels', :skip => 5, :headers => false)
+      t.entries.each do |row|
+        results << OpenStruct.new(:abbrev => row[0], :name => row[2])
+      end
+      results
+    end
 
   end
 end

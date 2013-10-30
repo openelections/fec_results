@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'remote_table'
-
 module FecResults
   class Congress
 

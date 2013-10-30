@@ -1,7 +1,12 @@
+require 'rubygems'
+require 'remote_table'
+require 'ostruct'
+
 require "fec_results/version"
 require "fec_results/congress"
 require "fec_results/result"
 require "fec_results/summary"
+require "fec_results/president"
 
 module FecResults
 
