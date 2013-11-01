@@ -11,7 +11,7 @@ module FecResults
       end
     end
 
-    def self.create_congress(results)
+    def self.create_from_results(results)
       results.map{|r|  
       self.new :year => r[:year],
                :chamber => r[:chamber], 
@@ -20,7 +20,8 @@ module FecResults
                :fec_id => r[:fec_id], 
                :incumbent => r[:incumbent], 
                :candidate_last => r[:candidate_last], 
-               :candidate_first => r[:candidate_first], 
+               :candidate_first => r[:candidate_first],
+               :candidate_suffix => r[:candidate_suffix],
                :candidate_name => r[:candidate_name], 
                :party => r[:party],
                :primary_votes => r[:primary_votes], 

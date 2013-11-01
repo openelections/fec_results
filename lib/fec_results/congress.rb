@@ -51,7 +51,7 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
     def process_2010(options={})
