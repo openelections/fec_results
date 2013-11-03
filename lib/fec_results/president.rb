@@ -22,6 +22,10 @@ module FecResults
       send("general_election_results_#{year}", *args)
     end
 
+    def primary_election_results(*args)
+      send("primary_election_results_#{year}", *args)
+    end
+
     def popular_vote_summary_2012(options={})
       results = []
       t = RemoteTable.new(url, :sheet => 'Table 1. 2012 Pres Popular Vote', :skip => 3)
@@ -46,12 +50,10 @@ module FecResults
       results = []
       t = RemoteTable.new(url, :sheet => '2012 Pres General Results')
       rows = t.entries
-      rows = rows.select{|r| r['D'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2012}
         next if candidate['LAST NAME,  FIRST'].blank?
-        # find the office_type
+        c = {:year => 2012}
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY']
@@ -61,13 +63,34 @@ module FecResults
         c[:candidate_last] = candidate['LAST NAME,  FIRST']
         c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last
         c[:candidate_name] = candidate['LAST NAME,  FIRST']
-
-        c = update_vote_tallies(c, candidate, 'PRIMARY VOTES', 'PRIMARY %', 'RUNOFF VOTES', 'RUNOFF %', 'GENERAL VOTES ', 'GENERAL %')
-        c = update_general_runoff(c, candidate, 'GE RUNOFF ELECTION VOTES (LA)', 'GE RUNOFF ELECTION % (LA)') if c[:state] == 'LA'
-        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (CT, NY, SC)', 'COMBINED % (CT, NY, SC)') if ['CT', 'NY', 'SC'].include?(c[:state])
-
-        c[:general_winner] = candidate['GE WINNER INDICATOR'] == "W" ? true : false unless c[:general_pct].nil?
-
+        c[:general_votes] = candidate['GENERAL RESULTS'].to_i
+        c[:general_pct] = candidate['GENERAL %'].to_f*100.0
+        c[:general_winner] = candidate['WINNER INDICATOR'] == "W" ? true : false
+        results << c
+      end
+      Result.create_from_results(results)
+    end
+    
+    def primary_election_results_2012(options={})
+      results = []
+      t = RemoteTable.new(url, :sheet => '2012 Pres Primary Results')
+      rows = t.entries
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        next if candidate['LAST NAME,  FIRST'].blank?
+        c = {:year => 2012}
+        c[:date] = Date.parse(candidate['PRIMARY DATE'])
+        c[:chamber] = "P"
+        c[:state] = candidate['STATE ABBREVIATION']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = candidate['LAST NAME,  FIRST'] == 'Obama, Barack' ? true : false
+        c[:fec_id] = candidate['FEC ID']
+        c[:candidate_first] = candidate['LAST NAME,  FIRST']
+        c[:candidate_last] = candidate['LAST NAME,  FIRST']
+        c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last
+        c[:candidate_name] = candidate['LAST NAME,  FIRST']
+        c[:primary_votes] = candidate['PRIMARY RESULTS'].to_i
+        c[:general_pct] = candidate['PRIMARY %'].to_f*100.0
         results << c
       end
       Result.create_from_results(results)
