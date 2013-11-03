@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'remote_table'
+require 'american_date'
 require 'ostruct'
 
 require "fec_results/version"
