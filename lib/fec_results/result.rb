@@ -1,7 +1,7 @@
 module FecResults
   class Result
 
-    attr_reader :year, :chamber, :state, :district, :fec_id, :incumbent, :candidate_last, :candidate_first, :candidate_name, :party,
+    attr_reader :year, :date, :chamber, :state, :district, :fec_id, :incumbent, :candidate_last, :candidate_first, :candidate_name, :party,
     :primary_votes, :primary_pct, :primary_unopposed, :runoff_votes, :runoff_pct, :general_votes, :general_pct, :general_unopposed, 
     :general_runoff_votes, :general_runoff_pct, :general_combined_party_votes, :general_combined_party_pct, :general_winner, :notes
 
@@ -14,6 +14,7 @@ module FecResults
     def self.create_from_results(results)
       results.map{|r|  
       self.new :year => r[:year],
+               :date => r[:date],
                :chamber => r[:chamber], 
                :state => r[:state], 
                :district => r[:district], 
