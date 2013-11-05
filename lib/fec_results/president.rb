@@ -61,11 +61,37 @@ module FecResults
         c[:fec_id] = candidate['FEC ID']
         c[:candidate_first] = candidate['LAST NAME,  FIRST']
         c[:candidate_last] = candidate['LAST NAME,  FIRST']
-        c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last
+        c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last if candidate['LAST NAME,  FIRST'].split(', ').size > 2
         c[:candidate_name] = candidate['LAST NAME,  FIRST']
         c[:general_votes] = candidate['GENERAL RESULTS'].to_i
         c[:general_pct] = candidate['GENERAL %'].to_f*100.0
         c[:general_winner] = candidate['WINNER INDICATOR'] == "W" ? true : false
+        results << c
+      end
+      Result.create_from_results(results)
+    end
+
+    def general_election_results_2008(options={})
+      results = []
+      t = RemoteTable.new(url, :sheet => '2008 PRES GENERAL RESULTS')
+      rows = t.entries
+      rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        next if candidate['LAST NAME,  FIRST'].blank?
+        c = {:year => year}
+        c[:chamber] = "P"
+        c[:date] = Date.parse(candidate['GENERAL ELECTION DATE'])
+        c[:state] = candidate['STATE ABBREVIATION']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = false
+        c[:fec_id] = candidate['FEC ID']
+        c[:candidate_first] = candidate['FIRST NAME']
+        c[:candidate_last] = candidate['LAST NAME']
+        c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last if candidate['LAST NAME,  FIRST'].split(', ').size > 2
+        c[:candidate_name] = candidate['LAST NAME,  FIRST']
+        c[:general_votes] = candidate['GENERAL RESULTS'].to_i
+        c[:general_pct] = candidate['GENERAL %'].to_f*100.0
+        c[:general_winner] = nil
         results << c
       end
       Result.create_from_results(results)
