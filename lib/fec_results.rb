@@ -13,7 +13,7 @@ module FecResults
 
   SUMMARY_URLS = {
     '2012' => 'http://www.fec.gov/pubrec/fe2012/tables2012.xls',
-    '2010' => 'http://www.fec.gov/pubrec/fe2010/tables2010.xls',
+    '2010' => 'http://www.fec.gov/pubrec/fe2010/tables10.xls',
     '2008' => 'http://www.fec.gov/pubrec/fe2008/tables2008.xls',
     '2006' => 'http://www.fec.gov/pubrec/fe2006/tables06.xls',
     '2004' => 'http://www.fec.gov/pubrec/fe2004/tables.xls',
