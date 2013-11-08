@@ -11,11 +11,11 @@ module FecResults
       end
     end
 
-    def results
+    def results(options={})
       send("process_#{year}", {:chamber => chamber, :state => state})
     end
 
-    def process_2012(options={})
+    def process_2012(options)
       results = []
       url = FecResults::CONGRESS_URLS['2012']
       t = RemoteTable.new(url, :sheet => "2012 US House & Senate Resuts")
@@ -54,7 +54,7 @@ module FecResults
       Result.create_from_results(results)
     end
 
-    def process_2010(options={})
+    def process_2010(options)
       results = []
       url = FecResults::CONGRESS_URLS['2010']
       t = RemoteTable.new(url, :sheet => "2010 US House & Senate Results")
@@ -87,10 +87,10 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2008(options={})
+    def process_2008(options)
       results = []
       url = FecResults::CONGRESS_URLS['2008']
       t = RemoteTable.new(url, :sheet => "2008 House and Senate Results")
@@ -124,10 +124,10 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2006(options={})
+    def process_2006(options)
       results = []
       url = FecResults::CONGRESS_URLS['2006']
       t = RemoteTable.new(url, :sheet => "2006 US House & Senate Results")
@@ -161,10 +161,10 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2004(options={})
+    def process_2004(options)
       results = []
       url = FecResults::CONGRESS_URLS['2004']
       t = RemoteTable.new(url, :sheet => "2004 US HOUSE & SENATE RESULTS")
@@ -200,7 +200,7 @@ module FecResults
       Result.create_congress(results)
     end
 
-    def process_2002(options={})
+    def process_2002(options)
       results = []
       url = FecResults::CONGRESS_URLS['2002']
       t = RemoteTable.new(url, :sheet => "2002 House & Senate Results")
@@ -236,7 +236,7 @@ module FecResults
       Result.create_congress(results)
     end
 
-    def process_2000(options={})
+    def process_2000(options)
       results = []
       urls = FecResults::CONGRESS_URLS['2000']
       urls.each do |url|
