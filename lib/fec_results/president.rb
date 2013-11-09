@@ -244,7 +244,7 @@ module FecResults
         c[:candidate_last] = candidate['LAST NAME,  FIRST']
         c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last if candidate['LAST NAME,  FIRST'].split(', ').size > 2
         c[:candidate_name] = candidate['LAST NAME,  FIRST']
-        c[:primary_votes] = candidate['GENERAL RESULTS'].to_i
+        c[:general_votes] = candidate['GENERAL RESULTS'].to_i
         c[:general_pct] = candidate['GENERAL %'].to_f*100.0
         results << c
       end
@@ -265,16 +265,67 @@ module FecResults
         c[:party] = candidate['PARTY']
         c[:incumbent] = candidate['LAST NAME,  FIRST'] == 'Bush, George W.' ? true : false
         c[:fec_id] = candidate['FEC ID']
-        c[:candidate_first] = candidate['LAST NAME,  FIRST']
-        c[:candidate_last] = candidate['LAST NAME,  FIRST']
+        c[:candidate_first] = candidate['LAST NAME,  FIRST'] #fixme
+        c[:candidate_last] = candidate['LAST NAME,  FIRST'] #fixme
         c[:candidate_suffix] = candidate['LAST NAME,  FIRST'].split(', ').last if candidate['LAST NAME,  FIRST'].split(', ').size > 2
         c[:candidate_name] = candidate['LAST NAME,  FIRST']
         c[:primary_votes] = candidate['PRIMARY RESULTS'].to_i
-        c[:general_pct] = candidate['PRIMARY %'].to_f*100.0
+        c[:primary_pct] = candidate['PRIMARY %'].to_f*100.0
         results << c
       end
       Result.create_from_results(results)
-    end 
+    end
+    
+    def general_election_results_2000(options={})
+      results = []
+      t = RemoteTable.new(url.first, :sheet => 'Master (with Totals & Percents)', :skip => 1, :headers => false)
+      rows = t.entries
+      rows = rows.select{|r| r[0] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        next if candidate[2].blank?
+        c = {:year => year}
+        c[:date] = Date.parse("11/7/2000")
+        c[:chamber] = "P"
+        c[:state] = candidate[0]
+        c[:party] = candidate[2] == 'Combined' ? "COMBINED TOTAL" : candidate[2]
+        c[:incumbent] = false
+        c[:fec_id] = nil
+        c[:candidate_first] = candidate[1].split(', ')[1]
+        c[:candidate_last] = candidate[1].split(', ')[0]
+        c[:candidate_suffix] = candidate[1].split(', ').last if candidate[1].split(', ').size > 2
+        c[:candidate_name] = candidate[1]
+        c[:general_votes] = candidate[3].blank? ? candidate[5].to_i : candidate[3].to_i
+        c[:general_pct] = candidate[4].to_f
+        results << c
+      end
+      Result.create_from_results(results)
+    end
+
+    def primary_election_results_2000(options={})
+      results = []
+      t = RemoteTable.new(url.last, :sheet => 'Primary Results by State')
+      rows = t.entries
+      rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
+      rows.each do |candidate|
+        next if candidate['PARTY'].blank?
+        next if candidate['CANDIDATE'] == 'Total Party Votes'
+        c = {:year => year}
+        c[:date] = nil
+        c[:chamber] = "P"
+        c[:state] = candidate['STATE']
+        c[:party] = candidate['PARTY']
+        c[:incumbent] = false
+        c[:fec_id] = nil
+        c[:candidate_first] = candidate['CANDIDATE'].split(', ')[1]
+        c[:candidate_last] = candidate['CANDIDATE'].split(', ')[0]
+        c[:candidate_suffix] = candidate['CANDIDATE'].split(', ').last if candidate['CANDIDATE'].split(', ').size > 2
+        c[:candidate_name] = candidate['CANDIDATE']
+        c[:primary_votes] = candidate['# OF VOTES'].to_i
+        c[:primary_pct] = candidate['PERCENT'].to_f
+        results << c
+      end
+      Result.create_from_results(results)
+    end
 
 
   end
