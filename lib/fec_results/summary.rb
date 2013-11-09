@@ -236,21 +236,17 @@ module FecResults
       end
       results
     end
-    
-    # columns are obama electoral, romney electoral, obama popular, romney popular, all others popular, total popular
-    def process_presidential_electoral_and_popular_vote_2012(options={})
+
+    def process_congressional_votes_by_election_2002(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => 'Table 2. Electoral &  Pop Vote', :skip => 4, :headers => false)
+      t = RemoteTable.new(url, :sheet => 'Table 1. Primary & General Vote', :skip => 4, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total:'
-        dem_electoral = row[1].to_i == 0 ? nil : row[1].to_i
-        gop_electoral = row[2].to_i == 0 ? nil : row[2].to_i
-        dem_popular = row[3].to_i == 0 ? nil : row[3].to_i
-        gop_popular = row[4].to_i == 0 ? nil : row[4].to_i
-        others_popular = row[5].to_i == 0 ? nil : row[5].to_i
-        total_popular = row[6].to_i == 0 ? nil : row[6].to_i
-        results << OpenStruct.new(:state => row[0], :democratic_electoral_votes => dem_electoral, :republican_electoral_votes => gop_electoral, :democratic_popular_votes => dem_popular, 
-        :republican_popular_votes => gop_popular, :others_popular => others_popular, :total_popular => total_popular)
+        senate_primary_votes = row[1].to_i == 0 ? nil : row[1].to_i
+        senate_general_votes = row[2].to_i == 0 ? nil : row[2].to_i
+        house_primary_votes = row[3].to_i == 0 ? nil : row[3].to_i
+        house_general_votes = row[4].to_i == 0 ? nil : row[4].to_i
+        results << OpenStruct.new(:state_abbrev => row[0], :senate_primary_votes => senate_primary_votes, :senate_general_votes => senate_general_votes, :house_primary_votes => house_primary_votes, :house_general_votes => house_general_votes)
       end
       results
     end
@@ -348,6 +344,24 @@ module FecResults
       results
     end
 
+    def process_chamber_votes_by_party_2002(options={})
+      results = []
+      sheet = options[:chamber] == 'senate' ? 'Table 2. Senate Votes by Party' : 'Table 3. House Votes by Party'
+      t = RemoteTable.new(url, :sheet => sheet, :skip => 4, :headers => false)
+      t.entries.each do |row|
+        break if row[0] == 'Total:'
+        dem_primary = row[1].to_i == 0 ? nil : row[1].to_i
+        gop_primary = row[2].to_i == 0 ? nil : row[2].to_i
+        other_primary = row[3].to_i == 0 ? nil : row[3].to_i
+        dem_general = row[4].to_i == 0 ? nil : row[4].to_i
+        gop_general = row[5].to_i == 0 ? nil : row[5].to_i
+        other_general = row[6].to_i == 0 ? nil : row[6].to_i
+        results << OpenStruct.new(:state_abbrev => row[0], :democratic_primary_votes => dem_primary, :republican_primary_votes => gop_primary, :other_primary_votes => other_primary,
+        :democratic_general_votes => dem_general, :republican_general_votes => gop_general, :other_general_votes => other_general)
+      end
+      results
+    end
+
     def process_house_party_gains_2010(options={})
       results = []
       t = RemoteTable.new(url, :sheet => 'Table 6. House Party Gains', :skip => 3)
@@ -398,6 +412,15 @@ module FecResults
     def party_labels_2004
       results = []
       t = RemoteTable.new(FecResults::PRESIDENT_URLS[year.to_s], :sheet => '2004 Party Labels', :skip => 7, :headers => false)
+      t.entries.each do |row|
+        results << OpenStruct.new(:abbrev => row[0], :name => row[2])
+      end
+      results
+    end
+
+    def party_labels_2002
+      results = []
+      t = RemoteTable.new(url, :sheet => '2002 Party Labels', :skip => 3, :headers => false)
       t.entries.each do |row|
         results << OpenStruct.new(:abbrev => row[0], :name => row[2])
       end
