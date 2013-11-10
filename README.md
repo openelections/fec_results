@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-FecResults can be used to retrieve both summary and contest-specific election results. For summary totals:
+FecResults can be used to retrieve both summary and contest-specific election results. Every instance of FecResults must include a year passed into the `new` method. For summary totals:
 
 ```ruby
 require 'fec_results'
@@ -33,7 +33,7 @@ alabama = general_votes.first
 alabama.house_votes
 => 1933630
 ```
-For specific congressional results, the file can take awhile to load, so try not to call `results` more than once:
+For specific congressional results, the file can take awhile to load, so try not to call `results` more than once, but rather save the output locally:
 
 ```ruby
 c = FecResults::Congress.new(:year => 2012)
