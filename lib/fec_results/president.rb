@@ -10,6 +10,10 @@ module FecResults
       @url = FecResults::PRESIDENT_URLS[year.to_s]
     end
     
+    def to_s
+      "#<FecResults::President:#{year.to_s}>"
+    end
+    
     #### main instance methods called with optional arguments to filter.
     
     def popular_vote_summary(*args)

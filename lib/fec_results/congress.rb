@@ -10,7 +10,11 @@ module FecResults
        instance_variable_set("@#{k}", v)
       end
     end
-
+    
+    def to_s
+      "#<FecResults::Congress:#{year.to_s}>"
+    end
+    
     def results(options={})
       send("process_#{year}", {:chamber => chamber, :state => state})
     end
@@ -197,7 +201,7 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
     def process_2002(options)
@@ -233,7 +237,7 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
     def process_2000(options)
@@ -270,7 +274,7 @@ module FecResults
       elsif options[:chamber] == 'S'
         results = results.select{|r| r[:chamber] == 'S'}
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
 
