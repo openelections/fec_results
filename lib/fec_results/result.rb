@@ -12,7 +12,7 @@ module FecResults
     end
     
     def to_s
-      "#<FecResults::Result:#{year.to_s}>"
+      "#<FecResults::Result:#{year.to_s}:#{chamber}:#{state}:#{district.to_i}>"
     end
 
     def self.create_from_results(results)
