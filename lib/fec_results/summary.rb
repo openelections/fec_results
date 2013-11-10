@@ -101,6 +101,10 @@ module FecResults
       end
       results
     end
+    
+    def process_general_election_votes_2002(options={})
+      raise NotImplementedError.new("This method not available for 2002")
+    end
 
     def process_general_election_votes_by_party_2012(options={})
       results = []
@@ -165,6 +169,10 @@ module FecResults
         results << OpenStruct.new(:state_abbrev => row['State'], :democratic_candidates => dem_votes, :republican_candidates => gop_votes, :other_candidates => other_votes)
       end
       results
+    end
+    
+    def process_general_election_votes_by_party_2002(options={})
+      raise NotImplementedError.new("This method not available for 2002")
     end
     
     def process_congressional_votes_by_election_2012(options={})
@@ -421,6 +429,15 @@ module FecResults
     def party_labels_2002
       results = []
       t = RemoteTable.new(url, :sheet => '2002 Party Labels', :skip => 3, :headers => false)
+      t.entries.each do |row|
+        results << OpenStruct.new(:abbrev => row[0], :name => row[2])
+      end
+      results
+    end
+
+    def party_labels_2000
+      results = []
+      t = RemoteTable.new(FecResults::PRESIDENT_URLS[year.to_s].first, :sheet => 'Guide to 2000 Party Labels', :headers => false)
       t.entries.each do |row|
         results << OpenStruct.new(:abbrev => row[0], :name => row[2])
       end
