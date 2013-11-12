@@ -42,6 +42,16 @@ results.first
 => <FecResults::Result:0x007fb46e297870 @year=2012, @chamber="H", @state="AL", @district="01", @fec_id="H2AL01077", @incumbent=true, @candidate_last="Bonner", @candidate_first="Jo", @candidate_name="Bonner, Jo", @party="R", @primary_votes=48702, @primary_pct=55.54959907839358, @primary_unopposed=false, @runoff_votes=nil, @runoff_pct=nil, @general_votes=196374, @general_pct=97.85624588889553, @general_unopposed=false, @general_runoff_votes=nil, @general_runoff_pct=nil, @general_combined_party_votes=nil, @general_combined_party_pct=nil, @general_winner=true, @notes=nil>
 ```
 
+To filter either summary or results items by state, pass in the state in a hash:
+
+```ruby
+c = FecResults::Congress.new(:year => 2012)
+results = c.results({:state => 'AL'})
+results.first
+=> <FecResults::Result:0x007fb46e297870 @year=2012, @chamber="H", @state="AL", @district="01", @fec_id="H2AL01077", @incumbent=true, @candidate_last="Bonner", @candidate_first="Jo", @candidate_name="Bonner, Jo", @party="R", @primary_votes=48702, @primary_pct=55.54959907839358, @primary_unopposed=false, @runoff_votes=nil, @runoff_pct=nil, @general_votes=196374, @general_pct=97.85624588889553, @general_unopposed=false, @general_runoff_votes=nil, @general_runoff_pct=nil, @general_combined_party_votes=nil, @general_combined_party_pct=nil, @general_winner=true, @notes=nil>
+```
+
+
 	
 
 ## Contributing
