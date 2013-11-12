@@ -36,6 +36,8 @@
 
 <p>FecResults is a Ruby library that provides access to federal election results as published by the Federal Election Commission. Although it is primarily a campaign finance disclosure agency, the FEC also compiles election results on its site. This library provides ways to access summary and contest-specific information about elections for the U.S. House of Representatives, the U.S. Senate and President from 2000-2012. This data represents regularly-scheduled primary and general elections, plus special elections held on the date of general elections. It does not include special elections held outside the regularly scheduled election calendar. The results are race-wide only; they do not contain any geographic breakdowns such as county.</p>
 
+<p>What's not here is results below the "race-wide" level; there are no county or precinct-level results, only those for the state and House district.</p>
+
 <p>Please be aware that there can be typos in some of the FEC results files, mainly in the FEC candidate IDs.</p>
 
 <h2>
@@ -62,14 +64,14 @@
 <p>FecResults can be used to retrieve both summary and contest-specific election results. Every instance of an FecResults class must include a year passed into the <code>new</code> method.</p>
 
 <h4>
-<a name="summary-results-data" class="anchor" href="#summary-results-data"><span class="octicon octicon-link"></span></a>Summary Results Data</h4>
+<a name="summary-results" class="anchor" href="#summary-results"><span class="octicon octicon-link"></span></a>Summary Results</h4>
 
-<p>The Summary class represents state, race and chamber totals for 2000-2012, plus a few other methods that are not strictly results themselves. Summary methods return Ruby objects built with OpenStruct. To get started, create an instance of the Summary class using a year hash:</p>
+<p>The Summary class represents state, race and chamber totals for 2000-2012, plus a few other methods that are not strictly results themselves. Summary methods return Ruby objects built with OpenStruct. To get started, create an instance of the <code>Summary</code> class using a year hash:</p>
 
 <div class="highlight highlight-ruby"><pre><span class="n">s</span> <span class="o">=</span> <span class="ss">FecResults</span><span class="p">:</span><span class="ss">:Summary</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:year</span> <span class="o">=&gt;</span> <span class="mi">2012</span><span class="p">)</span>
 </pre></div>
 
-<p>Summary objects have a handful of methods, from the general election votes by race type (President, Senate, House) to party vote totals by chamber. To retrieve general election votes:</p>
+<p><code>Summary</code> objects have a handful of methods, from the general election votes by race type (President, Senate, House) to party vote totals by chamber. To retrieve general election votes:</p>
 
 <div class="highlight highlight-ruby"><pre><span class="n">general_votes</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">general_election_votes</span>
 <span class="o">=&gt;</span> <span class="o">[&lt;</span><span class="no">OpenStruct</span> <span class="n">state</span><span class="o">=</span><span class="s2">"AL"</span><span class="p">,</span> <span class="n">presidential_votes</span><span class="o">=</span><span class="mi">2074338</span><span class="p">,</span> <span class="n">senate_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="n">house_votes</span><span class="o">=</span><span class="mi">1933630</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="no">OpenStruct</span> <span class="n">state</span><span class="o">=</span><span class="s2">"AK"</span><span class="p">,</span> <span class="n">presidential_votes</span><span class="o">=</span><span class="mi">300495</span><span class="p">,</span> <span class="n">senate_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="n">house_votes</span><span class="o">=</span><span class="mi">289804</span><span class="o">&gt;</span><span class="p">,</span><span class="o">.</span><span class="n">.</span><span class="o">.]</span>
@@ -80,19 +82,38 @@
 <span class="o">=&gt;</span> <span class="mi">1933630</span>
 </pre></div>
 
-<p>Another way to isolate a single state is to pass in an optional hash with the state abbreviation to the method called:</p>
+<p>Another way to isolate a single state is to pass in an optional hash with the state abbreviation to the method called. The state filter is the only filter for <code>Summary</code> objects.</p>
 
 <div class="highlight highlight-ruby"><pre><span class="n">alabama_votes</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">general_election_votes</span><span class="p">({</span><span class="ss">:state</span> <span class="o">=&gt;</span> <span class="s1">'AL'</span><span class="p">})</span>
 <span class="o">=&gt;</span> <span class="o">[&lt;</span><span class="no">OpenStruct</span> <span class="n">state</span><span class="o">=</span><span class="s2">"AL"</span><span class="p">,</span> <span class="n">presidential_votes</span><span class="o">=</span><span class="mi">2074338</span><span class="p">,</span> <span class="n">senate_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="n">house_votes</span><span class="o">=</span><span class="mi">1933630</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="no">OpenStruct</span> <span class="n">state</span><span class="o">=</span><span class="s2">"AK"</span><span class="p">,</span> <span class="n">presidential_votes</span><span class="o">=</span><span class="mi">300495</span><span class="p">,</span> <span class="n">senate_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="n">house_votes</span><span class="o">=</span><span class="mi">289804</span><span class="o">&gt;]</span>
 </pre></div>
 
-<p>For specific congressional results, the file can take awhile to load, so try not to call <code>results</code> more than once, but rather save the output locally:</p>
+<p>The <code>Summary</code> object methods work for all years except <code>house_party_gains</code>, which only applies to the 2010 cycle. In addition to summary election results, each cycle also has a <code>party_labels</code> method that lists political parties and the abbreviations used by the FEC for that cycle's results data.</p>
+
+<h4>
+<a name="presidential-results" class="anchor" href="#presidential-results"><span class="octicon octicon-link"></span></a>Presidential Results</h4>
+
+<p>In presidential years (2000, 2004, 2008 and 2012), FecResults offers totals of the popular and electoral vote, along with election results for both the primary and general elections. Retrieving presidential data works the same way, by passing a year:</p>
+
+<div class="highlight highlight-ruby"><pre><span class="nb">p</span> <span class="o">=</span> <span class="ss">FecResults</span><span class="p">:</span><span class="ss">:President</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:year</span> <span class="o">=&gt;</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="nb">p</span><span class="o">.</span><span class="n">primary_party_summary</span>
+<span class="o">=&gt;</span> <span class="o">[</span><span class="c1">#&lt;OpenStruct party="Democratic Party (D)", total_votes=15975066&gt;, #&lt;OpenStruct party="Republican Party (R)", total_votes=7940331&gt;, ..]</span>
+</pre></div>
+
+<p>Presidential methods include popular vote totals, state totals for electoral and popular votes, primary totals by party and election results for the primary and general elections.</p>
+
+<h4>
+<a name="congressional-results" class="anchor" href="#congressional-results"><span class="octicon octicon-link"></span></a>Congressional Results</h4>
+
+<p>FecResults offers House and Senate results for 2000-2012, which are built using the <code>Result</code> object (as are presidential results). For congressional results, the file can take awhile to load, so try not to call <code>results</code> more than once, but rather save the output to a variable:</p>
 
 <div class="highlight highlight-ruby"><pre><span class="n">c</span> <span class="o">=</span> <span class="ss">FecResults</span><span class="p">:</span><span class="ss">:Congress</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:year</span> <span class="o">=&gt;</span> <span class="mi">2012</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">results</span>
 <span class="n">results</span><span class="o">.</span><span class="n">first</span>
 <span class="o">=&gt;</span> <span class="o">&lt;</span><span class="ss">FecResults</span><span class="p">:</span><span class="ss">:Result</span><span class="p">:</span><span class="mh">0x007fb46e297870</span> <span class="vi">@year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="vi">@chamber</span><span class="o">=</span><span class="s2">"H"</span><span class="p">,</span> <span class="vi">@state</span><span class="o">=</span><span class="s2">"AL"</span><span class="p">,</span> <span class="vi">@district</span><span class="o">=</span><span class="s2">"01"</span><span class="p">,</span> <span class="vi">@fec_id</span><span class="o">=</span><span class="s2">"H2AL01077"</span><span class="p">,</span> <span class="vi">@incumbent</span><span class="o">=</span><span class="kp">true</span><span class="p">,</span> <span class="vi">@candidate_last</span><span class="o">=</span><span class="s2">"Bonner"</span><span class="p">,</span> <span class="vi">@candidate_first</span><span class="o">=</span><span class="s2">"Jo"</span><span class="p">,</span> <span class="vi">@candidate_name</span><span class="o">=</span><span class="s2">"Bonner, Jo"</span><span class="p">,</span> <span class="vi">@party</span><span class="o">=</span><span class="s2">"R"</span><span class="p">,</span> <span class="vi">@primary_votes</span><span class="o">=</span><span class="mi">48702</span><span class="p">,</span> <span class="vi">@primary_pct</span><span class="o">=</span><span class="mi">55</span><span class="o">.</span><span class="mi">54959907839358</span><span class="p">,</span> <span class="vi">@primary_unopposed</span><span class="o">=</span><span class="kp">false</span><span class="p">,</span> <span class="vi">@runoff_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@runoff_pct</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@general_votes</span><span class="o">=</span><span class="mi">196374</span><span class="p">,</span> <span class="vi">@general_pct</span><span class="o">=</span><span class="mi">97</span><span class="o">.</span><span class="mi">85624588889553</span><span class="p">,</span> <span class="vi">@general_unopposed</span><span class="o">=</span><span class="kp">false</span><span class="p">,</span> <span class="vi">@general_runoff_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@general_runoff_pct</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@general_combined_party_votes</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@general_combined_party_pct</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="vi">@general_winner</span><span class="o">=</span><span class="kp">true</span><span class="p">,</span> <span class="vi">@notes</span><span class="o">=</span><span class="kp">nil</span><span class="o">&gt;</span>
 </pre></div>
+
+<p>Not all years have the same data available - for example, general election winners are not always marked. In addition, some states permit candidates to run as the nominee of multiple parties; these candidates usually have a <code>Result</code> instance with a combined parties total and separate instances for each party.</p>
       </section>
     </div>
 
