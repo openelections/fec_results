@@ -27,12 +27,7 @@ module FecResults
     def congressional_votes_by_election(*args)
       send("process_congressional_votes_by_election_#{year}", *args)
     end
-    
-    def presidential_electoral_and_popular_vote(*args)
-      return "Not a presidential year" unless [2012, 2008, 2004, 2000].include?(year)
-      send("process_presidential_electoral_and_popular_vote_#{year}", *args)
-    end
-    
+        
     def chamber_votes_by_party(*args)
       send("process_chamber_votes_by_party_#{year}", *args)
     end
