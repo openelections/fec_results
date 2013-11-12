@@ -103,7 +103,7 @@ module FecResults
       t = RemoteTable.new(url, :sheet => '2012 Pres Primary Party Summary', :skip => 1, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes:'
-        results << OpenStruct.new(party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
       end
       results
     end
@@ -113,7 +113,7 @@ module FecResults
       t = RemoteTable.new(url, :sheet => '2008 Pres Primary Party Summary', :skip => 1, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes:'
-        results << OpenStruct.new(party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
       end
       results
     end
@@ -123,9 +123,13 @@ module FecResults
       t = RemoteTable.new(url, :sheet => '2004 Pres Primary Party Summary', :skip => 1, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes Cast:'
-        results << OpenStruct.new(party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
       end
       results
+    end
+
+    def primary_party_summary_2000(options={})
+      raise NotImplementedError.new("Data not available for #{year}")
     end
 
     def general_election_results_2012(options={})
