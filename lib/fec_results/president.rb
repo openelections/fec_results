@@ -80,10 +80,10 @@ module FecResults
 
     def state_electoral_and_popular_vote_summary_2008(options={})
       results = []
-      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 2. Pres Elec & Pop Vote', :skip => 2)
+      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 2. Electoral &  Pop Vote', :skip => 4, :headers => false)
       t.entries.each do |row|
         break if row[0] == 'Total:'
-        results << OpenStruct.new(:state => row['STATE'], :democratic_electoral_votes => row['Electoral Vote Kerry (D)'].to_i, :republican_electoral_votes => row['Electoral Vote Bush (R)'].to_i, :democratic_popular_votes => row['Popular Vote Kerry (D)'].to_i, :republican_popular_votes => row['Popular Vote Bush (R)'].to_i, :other_popular_votes => row['Popular Vote All Others'].to_i, :total_votes => row['Popular Vote Total Vote'].to_i)
+        results << OpenStruct.new(:state => row[0], :democratic_electoral_votes => row[1].to_i, :republican_electoral_votes => row[2].to_i, :democratic_popular_votes => row[3].to_i, :republican_popular_votes => row[4].to_i, :other_popular_votes => row[5].to_i, :total_votes => row[6].to_i)
       end
       results
     end
