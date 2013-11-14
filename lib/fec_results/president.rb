@@ -50,10 +50,10 @@ module FecResults
 
     def popular_vote_summary_2008(options={})
       results = []
-      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 1. Pres Popular Vote', :skip => 3)
+      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 1. 2008 Pres Popular Vote', :skip => 3)
       t.entries.each do |row|
-        break if row['Candidate'] == 'Total:'
-        results << OpenStruct.new(:candidate => row['Candidate'], :party => row['(Party Label)'], :popular_votes => row['Popular Vote Total'].to_i, :popular_vote_percent => row['Percent of Popular Vote'].to_f)
+        break if row['Candidate (Party Label)'] == 'Total:'
+        results << OpenStruct.new(:candidate => row['Candidate (Party Label)'], :popular_votes => row['Popular Vote Total'].to_i, :popular_vote_percent => row['Percent of Popular Vote'].to_f)
       end
       results
     end
