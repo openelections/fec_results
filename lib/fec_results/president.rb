@@ -217,7 +217,7 @@ module FecResults
         next if candidate['LAST NAME,  FIRST'].blank?
         c = {:year => year}
         c[:chamber] = "P"
-        c[:date] = Date.parse(candidate['GENERAL ELECTION DATE'])
+        c[:date] = Date.parse(candidate['PRIMARY DATE'])
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY']
         c[:incumbent] = false
