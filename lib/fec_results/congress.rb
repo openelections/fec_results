@@ -82,7 +82,7 @@ module FecResults
         c[:candidate_name] = candidate['CANDIDATE NAME (Last, First)']
 
         c = update_vote_tallies(c, candidate, 'PRIMARY', 'PRIMARY %', 'RUNOFF', 'RUNOFF %', 'GENERAL ', 'GENERAL %')
-        c = update_combined_totals(c, candidate) if ['CT', 'NY', 'SC'].include?(c[:state])
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (CT, NY, SC)', 'COMBINED % (CT, NY, SC)') if ['CT', 'NY', 'SC'].include?(c[:state])
 
         results << c
       end
