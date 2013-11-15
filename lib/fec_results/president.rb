@@ -242,7 +242,7 @@ module FecResults
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
         c = {:year => year}
-        c[:date] = Date.parse("GENERAL ELECTION DATE")
+        c[:date] = Date.parse(candidate["GENERAL ELECTION DATE"])
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY'].blank? ? "COMBINED TOTAL" : candidate['PARTY']
@@ -267,7 +267,7 @@ module FecResults
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
         c = {:year => year}
-        c[:date] = Date.parse("GENERAL ELECTION DATE")
+        c[:date] = Date.parse(candidate["PRIMARY DATE"])
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY']
