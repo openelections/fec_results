@@ -114,6 +114,34 @@
 </pre></div>
 
 <p>Not all years have the same data available - for example, general election winners are not always marked. In addition, some states permit candidates to run as the nominee of multiple parties; these candidates usually have a <code>Result</code> instance with a combined parties total and separate instances for each party.</p>
+
+<h3>
+<a name="json-api" class="anchor" href="#json-api"><span class="octicon octicon-link"></span></a>JSON API</h3>
+
+<p>Using the <a href="https://github.com/openelections/fec_results_generator">FecResultsGenerator library</a>, there is a static file JSON API of data retrieved by FecResults. It covers the years 2000-2012 and consists of three sections: Congress, President and Summary, matching the classes found in the gem. You can browse the API by changing the year, class name and method name. Here is a listing of the endpoints, using 2012 data:</p>
+
+<h5>
+<a name="summary" class="anchor" href="#summary"><span class="octicon octicon-link"></span></a>Summary</h5>
+
+<ul>
+<li><a href="http://openelections.github.io/fec_results/api/2012/summary/party_labels.json">Party Labels</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/summary/chamber_votes_by_party.json">Chamber Votes by Party</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/summary/congressional_votes_by_election.json">Congressional Votes by Election</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/summary/general_election_votes_by_party.json">General Election Votes by Party</a></li>
+</ul><h5>
+<a name="president" class="anchor" href="#president"><span class="octicon octicon-link"></span></a>President</h5>
+
+<ul>
+<li><a href="http://openelections.github.io/fec_results/api/2012/president/popular_vote_summary.json">Popular Vote Summary</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/president/state_electoral_and_popular_vote_summary.json">State Electoral and Popular Vote Summary</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/president/general_election_results.json">General Election Results</a></li>
+<li><a href="http://openelections.github.io/fec_results/api/2012/president/primary_election_results.json">Primary Election Results</a></li>
+</ul><h5>
+<a name="congress" class="anchor" href="#congress"><span class="octicon octicon-link"></span></a>Congress</h5>
+
+<ul>
+<li><a href="http://openelections.github.io/fec_results/api/2012/congress/results.json">Results</a></li>
+</ul>
       </section>
     </div>
 
