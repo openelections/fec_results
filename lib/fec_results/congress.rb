@@ -256,7 +256,7 @@ module FecResults
           c[:district] = candidate['DISTRICT']
           c[:party] = candidate['PARTY']
           c[:incumbent] = candidate['INCUMBENT INDICATOR'] == '(I)' ? true : false
-          c[:candidate_first], c[:candidate_last] = candidate['NAME'].split(', ')
+          c[:candidate_last], c[:candidate_first] = candidate['NAME'].split(', ')
           c[:candidate_name] = candidate['NAME']
 
           c = update_vote_tallies(c, candidate, 'PRIMARY RESULTS', 'PRIMARY %', 'RUNOFF RESULTS', 'RUNOFF %', 'GENERAL RESULTS', 'GENERAL %')
@@ -270,7 +270,7 @@ module FecResults
       elsif options[:chamber] == 'S'
         results = results.select{|r| r[:chamber] == 'S'}
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
 
@@ -282,7 +282,11 @@ module FecResults
       else
         c[:primary_unopposed] = false
         c[:primary_votes] = candidate[primary_votes].to_i
-        c[:primary_pct] = candidate[primary_pct].to_f*100.0
+        if c[:year] == 2000
+          c[:primary_pct] = candidate[primary_pct].to_f
+        else
+          c[:primary_pct] = candidate[primary_pct].to_f*100.0
+        end
       end
 
       if candidate[runoff_votes].blank?
@@ -290,7 +294,11 @@ module FecResults
         c[:runoff_pct] = nil
       else
         c[:runoff_votes] = candidate[runoff_votes].to_i
-        c[:runoff_pct] = candidate[runoff_pct].to_f*100.0
+        if c[:year] == 2000
+          c[:runoff_pct] = candidate[runoff_pct].to_f
+        else
+          c[:runoff_pct] = candidate[runoff_pct].to_f*100.0
+        end
       end
 
       if candidate[general_votes] == 'Unopposed'
@@ -304,7 +312,11 @@ module FecResults
       else
         c[:general_unopposed] = false
         c[:general_votes] = candidate[general_votes].to_i
-        c[:general_pct] = candidate[general_pct].to_f*100.0
+        if c[:year] == 2000
+          c[:general_pct] = candidate[general_pct].to_f
+        else
+          c[:general_pct] = candidate[general_pct].to_f*100.0
+        end
       end
       c
     end
@@ -312,7 +324,11 @@ module FecResults
     def update_general_runoff(c, candidate, general_runoff_votes, general_runoff_pct)
       unless candidate[general_runoff_votes].blank?
         c[:general_runoff_votes] = candidate[general_runoff_votes].to_i
-        c[:general_runoff_pct] = candidate[general_runoff_pct].to_f*100.0
+        if c[:year] == 2000
+          c[:general_runoff_pct] = candidate[general_runoff_pct].to_f
+        else
+          c[:general_runoff_pct] = candidate[general_runoff_pct].to_f*100.0
+        end
       end
       c
     end
@@ -320,7 +336,11 @@ module FecResults
     def update_combined_totals(c, candidate, general_combined_party_votes, general_combined_party_pct)
       unless candidate[general_combined_party_votes].blank?
         c[:general_combined_party_votes] = candidate[general_combined_party_votes].to_i
-        c[:general_combined_party_pct] = candidate[general_combined_party_pct].to_f*100.0
+        if c[:year] == 2000
+          c[:general_combined_party_pct] = candidate[general_combined_party_pct].to_f
+        else
+          c[:general_combined_party_pct] = candidate[general_combined_party_pct].to_f*100.0
+        end
       end
       c
     end
