@@ -1,7 +1,7 @@
 module FecResults
   class Congress
 
-    attr_reader :year, :chamber, :state
+    attr_reader :year, :url
 
     # given a year and an optional chamber ('house' or 'senate') and state ('ar', 'az', etc.) 
     # retrieves election results that fit the criteria
@@ -9,21 +9,21 @@ module FecResults
       params.each_pair do |k,v|
        instance_variable_set("@#{k}", v)
       end
+      @url = FecResults::CONGRESS_URLS[year.to_s]
+    end
+    
+    def results(options={})
+      send("process_#{year}", options)
     end
 
-    def results
-      send("process_#{year}", {:chamber => chamber, :state => state})
-    end
-
-    def process_2012(options={})
+    def process_2012(options)
       results = []
-      url = FecResults::CONGRESS_URLS['2012']
       t = RemoteTable.new(url, :sheet => "2012 US House & Senate Resuts")
       rows = t.entries
       rows = rows.select{|r| r['D'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2012}
+        c = {:year => year}
         next if candidate['CANDIDATE NAME (Last)'].blank?
         next if candidate['D'].blank?
         # find the office_type
@@ -54,15 +54,14 @@ module FecResults
       Result.create_from_results(results)
     end
 
-    def process_2010(options={})
+    def process_2010(options)
       results = []
-      url = FecResults::CONGRESS_URLS['2010']
       t = RemoteTable.new(url, :sheet => "2010 US House & Senate Results")
       rows = t.entries
       rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2010}
+        c = {:year => year}
         next if candidate['CANDIDATE NAME (Last)'].blank?
         next if candidate['DISTRICT'].blank?
         # find the office_type
@@ -83,22 +82,21 @@ module FecResults
         c[:candidate_name] = candidate['CANDIDATE NAME (Last, First)']
 
         c = update_vote_tallies(c, candidate, 'PRIMARY', 'PRIMARY %', 'RUNOFF', 'RUNOFF %', 'GENERAL ', 'GENERAL %')
-        c = update_combined_totals(c, candidate) if ['CT', 'NY', 'SC'].include?(c[:state])
+        c = update_combined_totals(c, candidate, 'COMBINED GE PARTY TOTALS (CT, NY, SC)', 'COMBINED % (CT, NY, SC)') if ['CT', 'NY', 'SC'].include?(c[:state])
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2008(options={})
+    def process_2008(options)
       results = []
-      url = FecResults::CONGRESS_URLS['2008']
       t = RemoteTable.new(url, :sheet => "2008 House and Senate Results")
       rows = t.entries
       rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2008}
+        c = {:year => year}
         next if candidate['Candidate Name (Last)'].blank?
         next if candidate['DISTRICT'].blank?
         # find the office_type
@@ -124,18 +122,17 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2006(options={})
+    def process_2006(options)
       results = []
-      url = FecResults::CONGRESS_URLS['2006']
       t = RemoteTable.new(url, :sheet => "2006 US House & Senate Results")
       rows = t.entries
       rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2006}
+        c = {:year => year}
         next if candidate['LAST NAME'].blank?
         next if candidate['DISTRICT'].blank?
         # find the office_type
@@ -161,18 +158,17 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
-    def process_2004(options={})
+    def process_2004(options)
       results = []
-      url = FecResults::CONGRESS_URLS['2004']
       t = RemoteTable.new(url, :sheet => "2004 US HOUSE & SENATE RESULTS")
       rows = t.entries
       rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2004}
+        c = {:year => year}
         next if candidate['LAST NAME'].blank?
         next if candidate['DISTRICT'].blank?
         # find the office_type
@@ -197,18 +193,17 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
     def process_2002(options={})
       results = []
-      url = FecResults::CONGRESS_URLS['2002']
       t = RemoteTable.new(url, :sheet => "2002 House & Senate Results")
       rows = t.entries
       rows = rows.select{|r| r['DISTRICT'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
       rows.each do |candidate|
-        c = {:year => 2002}
+        c = {:year => year}
         next if candidate['LAST NAME'].blank?
         next if candidate['DISTRICT'].blank?
         # find the office_type
@@ -233,18 +228,17 @@ module FecResults
 
         results << c
       end
-      Result.create_congress(results)
+      Result.create_from_results(results)
     end
 
     def process_2000(options={})
       results = []
-      urls = FecResults::CONGRESS_URLS['2000']
-      urls.each do |url|
-        t = RemoteTable.new(url.keys.first, :sheet => url.values.first)
+      url.each do |u|
+        t = RemoteTable.new(u.keys.first, :sheet => u.values.first)
         rows = t.entries
         rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
         rows.each do |candidate|
-          c = {:year => 2000}
+          c = {:year => year}
           next if candidate['NAME'][0..4] == 'Total'
           next if candidate['DISTRICT'].blank?
           if candidate['DISTRICT'].first == 'S'
