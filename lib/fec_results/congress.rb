@@ -18,7 +18,7 @@ module FecResults
 
     def process_2012(options)
       results = []
-      t = RemoteTable.new(url, :sheet => "2012 US House & Senate Resuts")
+      t = RemoteTable.new(url, :sheet => "2012 US House & Senate Results")
       rows = t.entries
       rows = rows.select{|r| r['D'] == options[:chamber]} if options[:chamber]
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
