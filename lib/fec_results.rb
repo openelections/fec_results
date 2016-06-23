@@ -12,6 +12,7 @@ require "fec_results/president"
 module FecResults
 
   SUMMARY_URLS = {
+    '2014' => 'http://www.fec.gov/pubrec/fe2014/tables2014.xls',
     '2012' => 'http://www.fec.gov/pubrec/fe2012/tables2012.xls',
     '2010' => 'http://www.fec.gov/pubrec/fe2010/tables10.xls',
     '2008' => 'http://www.fec.gov/pubrec/fe2008/tables2008.xls',
@@ -22,6 +23,7 @@ module FecResults
   }
 
   CONGRESS_URLS = {
+    '2014' => 'http://www.fec.gov/pubrec/fe2014/results14.xls',
     '2012' => 'http://www.fec.gov/pubrec/fe2012/2012congresults.xls',
     '2010' => 'http://www.fec.gov/pubrec/fe2010/results10.xls',
     '2008' => 'http://www.fec.gov/pubrec/fe2008/2008congresults.xls',
