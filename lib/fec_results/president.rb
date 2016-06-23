@@ -9,13 +9,13 @@ module FecResults
       end
       @url = FecResults::PRESIDENT_URLS[year.to_s]
     end
-    
+
     def to_s
       "#<FecResults::President:#{year.to_s}>"
     end
-    
+
     #### main instance methods called with optional arguments to filter.
-    
+
     def popular_vote_summary(*args)
       send("popular_vote_summary_#{year}", *args)
     end
@@ -23,7 +23,7 @@ module FecResults
     def state_electoral_and_popular_vote_summary(*args)
       send("state_electoral_and_popular_vote_summary_#{year}", *args)
     end
-    
+
     def primary_party_summary
       send("primary_party_summary_#{year}")
     end
@@ -35,95 +35,95 @@ module FecResults
     def primary_election_results(*args)
       send("primary_election_results_#{year}", *args)
     end
-    
+
     #### cycle-specific methods called by main methods above
 
     def popular_vote_summary_2012(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => 'Table 1. 2012 Pres Popular Vote', :skip => 3)
+      t = RemoteTable.new(url, sheet: 'Table 1. 2012 Pres Popular Vote', skip: 3)
       t.entries.each do |row|
         break if row['Candidate (Party Label)'] == 'Total:'
-        results << OpenStruct.new(:candidate => row['Candidate (Party Label)'], :popular_votes => row['Popular Vote Total'].to_i, :popular_vote_percent => row['Percent of Popular Vote'].to_f)
+        results << OpenStruct.new(candidate: row['Candidate (Party Label)'], popular_votes: row['Popular Vote Total'].to_i, popular_vote_percent: row['Percent of Popular Vote'].to_f)
       end
       results
     end
 
     def popular_vote_summary_2008(options={})
       results = []
-      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 1. 2008 Pres Popular Vote', :skip => 3)
+      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], sheet: 'Table 1. 2008 Pres Popular Vote', skip: 3)
       t.entries.each do |row|
         break if row['Candidate (Party Label)'] == 'Total:'
-        results << OpenStruct.new(:candidate => row['Candidate (Party Label)'], :popular_votes => row['Popular Vote Total'].to_i, :popular_vote_percent => row['Percent of Popular Vote'].to_f)
+        results << OpenStruct.new(candidate: row['Candidate (Party Label)'], popular_votes: row['Popular Vote Total'].to_i, popular_vote_percent: row['Percent of Popular Vote'].to_f)
       end
       results
     end
-    
+
     def popular_vote_summary_2004(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => 'Table 1. Pres Popular Vote', :skip => 3)
+      t = RemoteTable.new(url, sheet: 'Table 1. Pres Popular Vote', skip: 3)
       t.entries.each do |row|
         break if row['Candidate'] == 'Total:'
-        results << OpenStruct.new(:candidate => row['Candidate'], :party => row['(Party Label)'], :popular_votes => row['Popular Vote Total'].to_i, :popular_vote_percent => row['Percent of Popular Vote'].to_f)
+        results << OpenStruct.new(candidate: row['Candidate'], party: row['(Party Label)'], popular_votes: row['Popular Vote Total'].to_i, popular_vote_percent: row['Percent of Popular Vote'].to_f)
       end
       results
     end
 
     def state_electoral_and_popular_vote_summary_2012(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => 'Table 2. Electoral &  Pop Vote', :skip => 4, :headers => false)
+      t = RemoteTable.new(url, sheet: 'Table 2. Electoral &  Pop Vote', skip: 4, headers: false)
       t.entries.each do |row|
         break if row[0] == 'Total:'
-        results << OpenStruct.new(:state => row[0], :democratic_electoral_votes => row[1].to_i, :republican_electoral_votes => row[2].to_i, :democratic_popular_votes => row[3].to_i, :republican_popular_votes => row[4].to_i, :other_popular_votes => row[5].to_i, :total_votes => row[6].to_i)
+        results << OpenStruct.new(state: row[0], democratic_electoral_votes: row[1].to_i, republican_electoral_votes: row[2].to_i, :democratic_popular_votes => row[3].to_i, :republican_popular_votes => row[4].to_i, :other_popular_votes => row[5].to_i, total_votes: row[6].to_i)
       end
       results
     end
 
     def state_electoral_and_popular_vote_summary_2008(options={})
       results = []
-      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], :sheet => 'Table 2. Electoral &  Pop Vote', :skip => 4, :headers => false)
+      t = RemoteTable.new(FecResults::SUMMARY_URLS[year.to_s], sheet: 'Table 2. Electoral &  Pop Vote', skip: 4, headers: false)
       t.entries.each do |row|
         break if row[0] == 'Total:'
-        results << OpenStruct.new(:state => row[0], :democratic_electoral_votes => row[1].to_i, :republican_electoral_votes => row[2].to_i, :democratic_popular_votes => row[3].to_i, :republican_popular_votes => row[4].to_i, :other_popular_votes => row[5].to_i, :total_votes => row[6].to_i)
+        results << OpenStruct.new(state: row[0], democratic_electoral_votes: row[1].to_i, republican_electoral_votes: row[2].to_i, :democratic_popular_votes => row[3].to_i, :republican_popular_votes => row[4].to_i, :other_popular_votes => row[5].to_i, total_votes: row[6].to_i)
       end
       results
     end
 
     def state_electoral_and_popular_vote_summary_2004(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => 'Table 2. Pres Elec & Pop Vote', :skip => 2)
+      t = RemoteTable.new(url, sheet: 'Table 2. Pres Elec & Pop Vote', skip: 2)
       t.entries.each do |row|
         break if row[0] == 'Total:'
-        results << OpenStruct.new(:state => row['STATE'], :democratic_electoral_votes => row['Electoral Vote Kerry (D)'].to_i, :republican_electoral_votes => row['Electoral Vote Bush (R)'].to_i, :democratic_popular_votes => row['Popular Vote Kerry (D)'].to_i, :republican_popular_votes => row['Popular Vote Bush (R)'].to_i, :other_popular_votes => row['Popular Vote All Others'].to_i, :total_votes => row['Popular Vote Total Vote'].to_i)
+        results << OpenStruct.new(state: row['STATE'], democratic_electoral_votes: row['Electoral Vote Kerry (D)'].to_i, republican_electoral_votes: row['Electoral Vote Bush (R)'].to_i, :democratic_popular_votes => row['Popular Vote Kerry (D)'].to_i, :republican_popular_votes => row['Popular Vote Bush (R)'].to_i, :other_popular_votes => row['Popular Vote All Others'].to_i, total_votes: row['Popular Vote Total Vote'].to_i)
       end
       results
     end
 
     def primary_party_summary_2012(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2012 Pres Primary Party Summary', :skip => 1, :headers => false)
+      t = RemoteTable.new(url, sheet: '2012 Pres Primary Party Summary', skip: 1, headers: false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes:'
-        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(party: row[0], total_votes: row[1].to_i)
       end
       results
     end
-    
+
     def primary_party_summary_2008(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2008 Pres Primary Party Summary', :skip => 1, :headers => false)
+      t = RemoteTable.new(url, sheet: '2008 Pres Primary Party Summary', skip: 1, headers: false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes:'
-        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(party: row[0], total_votes: row[1].to_i)
       end
       results
     end
-    
+
     def primary_party_summary_2004(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2004 Pres Primary Party Summary', :skip => 1, :headers => false)
+      t = RemoteTable.new(url, sheet: '2004 Pres Primary Party Summary', skip: 1, headers: false)
       t.entries.each do |row|
         break if row[0] == 'Total Primary Votes Cast:'
-        results << OpenStruct.new(:party => row[0], :total_votes => row[1].to_i)
+        results << OpenStruct.new(party: row[0], total_votes: row[1].to_i)
       end
       results
     end
@@ -134,12 +134,12 @@ module FecResults
 
     def general_election_results_2012(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2012 Pres General Results')
+      t = RemoteTable.new(url, sheet: '2012 Pres General Results')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY'] == 'Combined Parties:' ? "COMBINED TOTAL" : candidate['PARTY']
@@ -156,15 +156,15 @@ module FecResults
       end
       Result.create_from_results(results)
     end
-    
+
     def primary_election_results_2012(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2012 Pres Primary Results')
+      t = RemoteTable.new(url, sheet: '2012 Pres Primary Results')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
         c[:party] = candidate['PARTY']
@@ -184,12 +184,12 @@ module FecResults
 
     def general_election_results_2008(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2008 PRES GENERAL RESULTS')
+      t = RemoteTable.new(url, sheet: '2008 PRES GENERAL RESULTS')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:chamber] = "P"
         c[:date] = Date.parse(candidate['GENERAL ELECTION DATE'])
         c[:state] = candidate['STATE ABBREVIATION']
@@ -206,16 +206,16 @@ module FecResults
         results << c
       end
       Result.create_from_results(results)
-    end    
-    
+    end
+
     def primary_election_results_2008(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2008 Pres Primary Results')
+      t = RemoteTable.new(url, sheet: '2008 Pres Primary Results')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:chamber] = "P"
         c[:date] = Date.parse(candidate['PRIMARY DATE'])
         c[:state] = candidate['STATE ABBREVIATION']
@@ -233,15 +233,15 @@ module FecResults
       end
       Result.create_from_results(results)
     end
-    
+
     def general_election_results_2004(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2004 PRES GENERAL RESULTS')
+      t = RemoteTable.new(url, sheet: '2004 PRES GENERAL RESULTS')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:date] = Date.parse(candidate["GENERAL ELECTION DATE"])
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
@@ -261,12 +261,12 @@ module FecResults
 
     def primary_election_results_2004(options={})
       results = []
-      t = RemoteTable.new(url, :sheet => '2004 PRES PRIMARY RESULTS')
+      t = RemoteTable.new(url, sheet: '2004 PRES PRIMARY RESULTS')
       rows = t.entries
       rows = rows.select{|r| r['STATE ABBREVIATION'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['LAST NAME,  FIRST'].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:date] = Date.parse(candidate["PRIMARY DATE"])
         c[:chamber] = "P"
         c[:state] = candidate['STATE ABBREVIATION']
@@ -283,15 +283,15 @@ module FecResults
       end
       Result.create_from_results(results)
     end
-    
+
     def general_election_results_2000(options={})
       results = []
-      t = RemoteTable.new(url.first, :sheet => 'Master (with Totals & Percents)', :skip => 1, :headers => false)
+      t = RemoteTable.new(url.first, sheet: 'Master (with Totals & Percents)', skip: 1, headers: false)
       rows = t.entries
       rows = rows.select{|r| r[0] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate[2].blank?
-        c = {:year => year}
+        c = {year: year}
         c[:date] = Date.parse("11/7/2000")
         c[:chamber] = "P"
         c[:state] = candidate[0]
@@ -311,13 +311,13 @@ module FecResults
 
     def primary_election_results_2000(options={})
       results = []
-      t = RemoteTable.new(url.last, :sheet => 'Primary Results by State')
+      t = RemoteTable.new(url.last, sheet: 'Primary Results by State')
       rows = t.entries
       rows = rows.select{|r| r['STATE'] == options[:state]} if options[:state]
       rows.each do |candidate|
         next if candidate['PARTY'].blank?
         next if candidate['CANDIDATE'] == 'Total Party Votes'
-        c = {:year => year}
+        c = {year: year}
         c[:date] = nil
         c[:chamber] = "P"
         c[:state] = candidate['STATE']
