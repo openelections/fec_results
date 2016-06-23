@@ -58,7 +58,7 @@ module FecResults
 
     def process_general_election_votes_2012(options={})
       results = []
-      t = RemoteTable.new(url, sheet: 'Table 3.GEVotes for Pres, H & S', skip: 2)
+      t = RemoteTable.new(url, sheet: 'Table 3.GEVotes for Pres, H & S', skip: 3)
       rows = t.entries
       rows = rows.select{|r| r['State'] == options[:state]} if options[:state]
       rows.each do |row|
